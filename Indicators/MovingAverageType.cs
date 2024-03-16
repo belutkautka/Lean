@@ -63,6 +63,10 @@ namespace QuantConnect.Indicators
         /// <summary>
         /// The Arnaud Legoux Moving Average (10)
         /// </summary>
-        Alma
+        Alma,
+        /// <summary>
+        /// An exponential moving average, using a smoothing factor of 1/n and simple moving average as seeding with window (11)
+        /// </summary>
+        WindowWilders
     }
 }

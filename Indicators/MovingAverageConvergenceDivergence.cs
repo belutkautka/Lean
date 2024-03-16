@@ -65,6 +65,19 @@ namespace QuantConnect.Indicators
             : this($"MACD({fastPeriod},{slowPeriod},{signalPeriod})", fastPeriod, slowPeriod, signalPeriod, type)
         {
         }
+        
+        /// <summary>
+        /// Creates a new MACD with the specified parameters
+        /// </summary>
+        /// <param name="fastPeriod">The fast moving average period</param>
+        /// <param name="slowPeriod">The slow moving average period</param>
+        /// <param name="signalPeriod">The signal period</param>
+        /// <param name="windowSize">The window size</param>
+        /// <param name="type">The type of moving averages to use</param>
+        public MovingAverageConvergenceDivergence(int fastPeriod, int slowPeriod, int signalPeriod, int windowSize, MovingAverageType type = MovingAverageType.WindowWilders)
+            : this($"MACD({fastPeriod},{slowPeriod},{signalPeriod})", fastPeriod, slowPeriod, signalPeriod, windowSize, type)
+        {
+        }
 
         /// <summary>
         /// Creates a new MACD with the specified parameters
@@ -85,6 +98,30 @@ namespace QuantConnect.Indicators
             Fast = type.AsIndicator(name + "_Fast", fastPeriod);
             Slow = type.AsIndicator(name + "_Slow", slowPeriod);
             Signal = type.AsIndicator(name + "_Signal", signalPeriod);
+            Histogram = new Identity(name + "_Histogram");
+            WarmUpPeriod = slowPeriod + signalPeriod - 1;
+        }
+        
+        /// <summary>
+        /// Creates a new MACD with the specified parameters
+        /// </summary>
+        /// <param name="name">The name of this indicator</param>
+        /// <param name="fastPeriod">The fast moving average period</param>
+        /// <param name="slowPeriod">The slow moving average period</param>
+        /// <param name="signalPeriod">The signal period</param>
+        /// <param name="windowSize">The window size</param>
+        /// <param name="type">The type of moving averages to use</param>
+        public MovingAverageConvergenceDivergence(string name, int fastPeriod, int slowPeriod, int signalPeriod, int windowSize, MovingAverageType type = MovingAverageType.WindowWilders)
+            : base(name)
+        {
+            if (fastPeriod >= slowPeriod)
+            {
+                throw new ArgumentException("MovingAverageConvergenceDivergence: fastPeriod must be less than slowPeriod", $"{nameof(fastPeriod)}, {nameof(slowPeriod)}");
+            }
+            
+            Fast = type.AsIndicator(name + "_Fast", fastPeriod, windowSize);
+            Slow = type.AsIndicator(name + "_Slow", slowPeriod, windowSize);
+            Signal = type.AsIndicator(name + "_Signal", signalPeriod, windowSize);
             Histogram = new Identity(name + "_Histogram");
             WarmUpPeriod = slowPeriod + signalPeriod - 1;
         }

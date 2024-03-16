@@ -72,6 +72,27 @@ namespace QuantConnect.Indicators
         }
 
         /// <summary>
+        /// Creates a new indicator from the specified MovingAverageType with window. So if MovingAverageType.WindowWilders
+        /// is specified, then a new WindowExponentialMovingAverage will be returned.
+        /// </summary>
+        /// <param name="movingAverageType">The type of averaging indicator to create</param>
+        /// <param name="period">The smoothing period</param>
+        /// <param name="windowSize">The size of window</param>
+        /// <returns>A new indicator that matches the MovingAverageType</returns>
+        public static IndicatorBase<IndicatorDataPoint> AsIndicator(this MovingAverageType movingAverageType, int period, int windowSize)
+        {
+            if (period > windowSize)
+                throw new AggregateException("The period is larger than the window size");
+            switch (movingAverageType)
+            {
+                case MovingAverageType.WindowWilders:
+                    return new WindowExponentialMovingAverage((decimal) 1 / period, windowSize);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(movingAverageType));
+            }
+        }
+
+        /// <summary>
         /// Creates a new indicator from the specified MovingAverageType. So if MovingAverageType.Simple
         /// is specified, then a new SimpleMovingAverage will be returned.
         /// </summary>
@@ -112,10 +133,37 @@ namespace QuantConnect.Indicators
 
                 case MovingAverageType.Hull:
                     return new HullMovingAverage(name, period);
-                
+
                 case MovingAverageType.Alma:
                     return new ArnaudLegouxMovingAverage(name, period);
 
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(movingAverageType));
+            }
+        }
+        
+        /// <summary>
+        /// Creates a new indicator from the specified MovingAverageType with window. So if MovingAverageType.WindowWilders
+        /// is specified, then a new WindowExponentialMovingAverage will be returned.
+        /// </summary>
+        /// <param name="name">The name of the new indicator</param>
+        /// <param name="movingAverageType">The type of averaging indicator to create</param>
+        /// <param name="period">The smoothing period</param>
+        /// <param name="windowSize">The size of window</param>
+        /// <returns>A new indicator that matches the MovingAverageType</returns>
+        public static IndicatorBase<IndicatorDataPoint> AsIndicator(this MovingAverageType movingAverageType, string name,
+            int period, int windowSize)
+        {
+            if (period > windowSize)
+            {
+                throw new ArgumentException("The period is larger than the window size",$"{nameof(movingAverageType)}," +
+                    $" {nameof(period)}, {nameof(windowSize)}" );
+            }
+
+            switch (movingAverageType)
+            {
+                case MovingAverageType.WindowWilders:
+                    return new WindowExponentialMovingAverage(name, (decimal) 1 / period, windowSize);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(movingAverageType));
             }
